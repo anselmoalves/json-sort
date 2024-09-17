@@ -117,6 +117,16 @@ class JsonSortTest < Test::Unit::TestCase
 
     assert_equal '{"k":["a","b"]}', result
   end
+
+  def test_when_the_json_is_a_nested_hash_of_strings_with_a_single_entry__do_nothing
+    object = '{ "k": { "a": "b" } }'
+
+    result = sort object
+
+    assert_equal '{"k":{"a":"b"}}', result
+  end
+
+  # TODO: mix types in arrays and hashes
 end
 
 class Suite < TestDecorator
