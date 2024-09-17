@@ -1,19 +1,39 @@
 require 'json'
 
-def sort!(json)
+def sort(json)
   # TODO: replace switch case by array of functions
-  case json
+
+  if (json.nil?)
+    return json
+  end
+
+  if (json == '')
+    return json
+  end
+
+  object = JSON.parse json
+
+  case object
   when Array
-    if json.empty?
-      return
-    else
-      json.sort_by! do |e|
-        e.keys.map { |key| e[key].to_s.strip.downcase }
-         .join('')
-      end
-      return
+    if object.empty?
+      return object.to_json
+    end
+    object.sort_by! do |e|
+      e.is_a?(String) ? e : e.keys.map { |key| e[key].to_s.strip.downcase }
+                             .join('')
     end
   when Hash
-    json[json.keys.first].sort!
+    if (object.empty?)
+      return object.to_json
+    end
+    if (object[object.keys.first].is_a?(String))
+      object = Hash[object.sort_by { |key, value| key }]
+    end
+    if (!object[object.keys.first].is_a?(Array))
+      return object.to_json
+    end
+    object[object.keys.first].sort!
   end
+
+  object.to_json
 end
