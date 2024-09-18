@@ -18,28 +18,31 @@ end
 
 def sort_object(object)
   case object
+  when String
+    return object
   when Array
     if object.empty?
       return object
     end
-    if object.first.is_a? Array
-      return object.map { |e| sort_object(e) }
-    end
-    return object.sort_by do |e|
-      e.is_a?(String) ? e : e.keys.map { |key| e[key].to_s.strip.downcase }
-                             .join('')
+
+    object.sort_by do |e|
+      case e
+      when String
+        sort_object e
+      when Array
+        sort_object e
+      when Hash
+        e.keys.map { |key| e[key].to_s.strip.downcase }
+         .join('')
+      end
     end
   when Hash
     if object.empty?
       return object
     end
-    if object[object.keys.first].is_a? String
-      return Hash[object.sort_by { |key, value| key }]
-    end
-    if !object[object.keys.first].is_a? Array
-      return object
-    end
-    object[object.keys.first].sort!
-    return object
+
+    Hash[object.map do |key, value|
+      [key, sort_object(value)]
+    end.to_h.sort_by { |key, value| key }]
   end
 end
