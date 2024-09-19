@@ -1,12 +1,6 @@
 require 'json'
 
-filename = ARGV[1]
-
-puts filename
-
 def sort(json)
-  # TODO: replace switch case by array of functions
-
   if json.nil?
     return json
   end
@@ -22,33 +16,31 @@ end
 
 def sort_object(object)
   case object
-  when String
-    return object
   when Array
-    if object.empty?
-      return object
-    end
-
     object.sort_by! do |e|
       case e
-      when String
-        sort_object e
       when Array
         sort_object e
       when Hash
-        e.keys.map do |key|
-          sort_object e[key]
-          e[key].to_s.strip.downcase
-        end.join('')
+        sort_object e
+        e.keys.map { |key| "#{key.to_s}#{e[key.to_s].to_s}" }.join
+      else
+        sort_object(e).to_s
       end
     end
   when Hash
-    if object.empty?
-      return object
-    end
-
     Hash[object.map do |key, value|
       [key, sort_object(value)]
-    end.to_h.sort_by { |key, value| key }]
+    end.to_h.sort_by { |key, value| key }].map do |key, value|
+      object.delete key
+      object[key] = value
+    end
   end
+  object
+end
+
+ARGV.each do |filename|
+  json = File.read filename
+  sorted_json = sort json
+  File.open(filename, 'w') { |file| file.write JSON.pretty_generate JSON.parse sorted_json }
 end
