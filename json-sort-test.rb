@@ -64,12 +64,36 @@ class JsonSortTest < Test::Unit::TestCase
     assert_equal object, result
   end
 
-  def test_when_the_json_is_an_array_of_a_hashes_of_strings_with_a_single_entry__do_nothing
+  def test_when_the_json_is_a_nested_array_of_strings__sort_the_inner_array
+    object = [['b', 'a']].to_json
+
+    result = sort object
+
+    assert_equal [['a', 'b']].to_json, result
+  end
+
+  def test_when_the_json_is_a_three_level_nested_array_of_strings__sort_the_innermost_array
+    object = [[['b', 'a']]].to_json
+
+    result = sort object
+
+    assert_equal [[['a', 'b']]].to_json, result
+  end
+
+  def test_when_the_json_is_an_array_of_a_hash_of_strings_with_a_single_entry__do_nothing
     object = [{ 'k': 'a' }].to_json
 
     result = sort object
 
     assert_equal object, result
+  end
+
+  def test_when_the_json_is_an_array_of_a_hash_of_array_of_strings__sort_the_array
+    object = [{ 'k': { 'a': ['c', 'b'] } }].to_json
+
+    result = sort object
+
+    assert_equal [{ 'k': { 'a': ['b', 'c'] } }].to_json, result
   end
 
   def test_when_the_json_is_an_array_of_two_hashes_of_string_values_with_a_single_key__sort_the_array
@@ -81,11 +105,11 @@ class JsonSortTest < Test::Unit::TestCase
   end
 
   def test_when_the_json_is_an_array_of_two_hashes_of_string_values_with_multiple_keys__sort_the_array
-    object = [{ 'k1': 'a', 'k2': 'c' }, { 'k1': 'a', 'k2': 'b' }].to_json
+    object = [{ 'j': 'a', 'k': 'c' }, { 'j': 'a', 'k': 'b' }].to_json
 
     result = sort object
 
-    assert_equal [{ 'k1': 'a', 'k2': 'b' }, { 'k1': 'a', 'k2': 'c' }].to_json, result
+    assert_equal [{ 'j': 'a', 'k': 'b' }, { 'j': 'a', 'k': 'c' }].to_json, result
   end
 
   def test_when_the_json_is_an_empty_hash__do_nothing
@@ -128,7 +152,21 @@ class JsonSortTest < Test::Unit::TestCase
     assert_equal '{"k":{"a":"b"}}', result
   end
 
-  # TODO: mix types in arrays and hashes
+  def test_when_the_json_is_a_nested_hash_of_an_array_of_strings__sort_the_array
+    object = '{ "k": { "a": ["c", "b"] } }'
+
+    result = sort object
+
+    assert_equal '{"k":{"a":["b","c"]}}', result
+  end
+
+  def test_when_the_json_is_a_nested_hash_of_an_array_of_hashes_of_string__sort_the_array
+    object = '{ "k": { "a": [{ "j": "a", "k": "c" }, { "j": "a", "k": "b" }] } }'
+
+    result = sort object
+
+    assert_equal '{"k":{"a":[{"j":"a","k":"b"},{"j":"a","k":"c"}]}}', result
+  end
 end
 
 class Suite < TestDecorator

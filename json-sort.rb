@@ -1,5 +1,9 @@
 require 'json'
 
+filename = ARGV[1]
+
+puts filename
+
 def sort(json)
   # TODO: replace switch case by array of functions
 
@@ -25,15 +29,17 @@ def sort_object(object)
       return object
     end
 
-    object.sort_by do |e|
+    object.sort_by! do |e|
       case e
       when String
         sort_object e
       when Array
         sort_object e
       when Hash
-        e.keys.map { |key| e[key].to_s.strip.downcase }
-         .join('')
+        e.keys.map do |key|
+          sort_object e[key]
+          e[key].to_s.strip.downcase
+        end.join('')
       end
     end
   when Hash
