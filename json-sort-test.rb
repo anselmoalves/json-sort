@@ -1,5 +1,3 @@
-require 'coverage.so'
-Coverage.start
 require 'json'
 require './json-sort'
 require 'test/unit'
@@ -239,5 +237,3 @@ end
 
 Test::Unit::UI::Console::TestRunner.run Suite.new(JsonSortTest)
 Test::Unit::TestSuite.new 'Json sort tests'
-
-p Coverage.result
